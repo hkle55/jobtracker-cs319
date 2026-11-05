@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JobTracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>JobTracker</h1>
+
+    <section>
+      <h2>Add a job application</h2>
+      <form id="application-form" novalidate>
+        <label for="company">Company name</label>
+        <input type="text" id="company" name="company">
+
+        <label for="position">Position</label>
+        <input type="text" id="position" name="position">
+
+        <label for="date-applied">Date applied</label>
+        <input type="date" id="date-applied" name="dateApplied">
+
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="">Select a status</option>
+          <option value="Applied">Applied</option>
+          <option value="Interviewing">Interviewing</option>
+          <option value="Offer">Offer</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+
+        <p id="form-error" class="error" role="alert"></p>
+
+        <button type="submit">Add application</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Saved applications</h2>
+      <p id="empty-message">No applications yet.</p>
+      <ul id="application-list"></ul>
+    </section>
+  </main>
+</body>
+</html>
