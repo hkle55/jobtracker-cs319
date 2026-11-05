@@ -3,7 +3,23 @@ const formError = document.getElementById("form-error");
 const list = document.getElementById("application-list");
 const emptyMessage = document.getElementById("empty-message");
 
-const applications = [];
+const STORAGE_KEY = "jobtracker.applications";
+
+const applications = loadApplications();
+
+function loadApplications() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    // Saved data that isn't valid JSON is treated as an empty list.
+    return [];
+  }
+}
+
+function saveApplications() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
+}
 
 // Returns the label of every required field that is blank.
 function findMissingFields(application) {
@@ -53,6 +69,7 @@ form.addEventListener("submit", (event) => {
 
   formError.textContent = "";
   applications.push(application);
+  saveApplications();
   renderApplications();
   form.reset();
 });
