@@ -1,6 +1,6 @@
 # JobTracker
 
-A simple job application tracker for CS319. Sprint 1 lets you add a job application, view saved applications, and keep them after refreshing or reopening the page.
+A simple job application tracker for CS319. Sprint 1 lets you add a job application, view saved applications, and keep them after refreshing or reopening the page. Saved applications can also be edited and deleted.
 
 Built with HTML, CSS, and vanilla JavaScript. Data is stored in the browser's `localStorage`. There is no framework, backend, database, or build step.
 
@@ -20,9 +20,11 @@ Tested in Google Chrome on macOS.
 ## Using the app
 
 1. Fill in company name, position, date applied, and status.
-2. Select **Add application**. The application appears under **Saved applications**.
+2. Select **Add application**. The application appears under **Saved applications**, to the right of the form on wider screens and below it on small screens.
+3. To change an application, select **Edit** next to it. Its details load into the form. Make your changes and select **Save changes**, or select **Cancel edit** to discard them.
+4. To remove an application, select **Delete** next to it and confirm.
 
-If a field is blank, the form shows an error naming the missing fields and does not add the application.
+If a field is blank, the form shows an error naming the missing fields and does not add or save the application.
 
 ## Known limitations
 
@@ -30,5 +32,5 @@ If a field is blank, the form shows an error naming the missing fields and does 
 - Clearing the browser's site data deletes saved applications. Private or incognito windows may not keep them after closing.
 - Saving requires `localStorage`. If the browser blocks it or storage is full, applications cannot be saved and the app does not show a message about it.
 - Opening the app from a different folder or address may show an empty list, depending on the browser, because browsers can store data separately by location.
-- Applications cannot be edited or deleted.
+- Deleted applications cannot be recovered.
 - Validation only checks that all fields are filled in. Future dates and duplicate applications are accepted.
