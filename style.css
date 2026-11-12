@@ -70,6 +70,26 @@ button {
   cursor: pointer;
 }
 
+button.secondary {
+  background: #fff;
+  color: #1d4ed8;
+  border: 1px solid #1d4ed8;
+}
+
+#cancel-edit {
+  margin-left: 8px;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.item-actions button {
+  padding: 4px 12px;
+}
+
 .error {
   margin: 0 0 14px;
   color: #b91c1c;
