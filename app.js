@@ -59,9 +59,15 @@ function renderApplications() {
     editButton.textContent = "Edit";
     editButton.addEventListener("click", () => startEditing(index));
 
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "danger";
+    deleteButton.textContent = "Delete";
+    deleteButton.addEventListener("click", () => deleteApplication(index));
+
     const actions = document.createElement("div");
     actions.className = "item-actions";
-    actions.appendChild(editButton);
+    actions.append(editButton, deleteButton);
     item.appendChild(actions);
 
     list.appendChild(item);
@@ -92,6 +98,26 @@ function stopEditing() {
   formHeading.textContent = "Add a job application";
   submitButton.textContent = "Add application";
   cancelEditButton.hidden = true;
+}
+
+function deleteApplication(index) {
+  const application = applications[index];
+  const confirmed = confirm(
+    `Delete the ${application.position} application at ${application.company}?`
+  );
+  if (!confirmed) return;
+
+  applications.splice(index, 1);
+
+  // Keep edit mode pointing at the right application after the removal.
+  if (editingIndex === index) {
+    stopEditing();
+  } else if (editingIndex !== null && editingIndex > index) {
+    editingIndex -= 1;
+  }
+
+  saveApplications();
+  renderApplications();
 }
 
 form.addEventListener("submit", (event) => {
