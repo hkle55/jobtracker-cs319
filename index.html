@@ -57,6 +57,14 @@
               <option value="Rejected">Rejected</option>
             </select>
           </div>
+          <div>
+            <label for="sort-by">Sort by</label>
+            <select id="sort-by">
+              <option value="newest" selected>Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="company">Company A–Z</option>
+            </select>
+          </div>
         </div>
 
         <p id="result-count" aria-live="polite"></p>
@@ -69,6 +77,7 @@
   <script src="applications.js"></script>
   <script src="storage.js"></script>
   <script src="filters.js"></script>
+  <script src="sorting.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
