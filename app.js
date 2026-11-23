@@ -6,35 +6,15 @@ const formHeading = document.getElementById("form-heading");
 const submitButton = document.getElementById("submit-button");
 const cancelEditButton = document.getElementById("cancel-edit");
 
-const STORAGE_KEY = "jobtracker.applications";
-
-const applications = loadApplications();
+// readApplications/writeApplications come from storage.js and
+// findMissingFields from applications.js (loaded first in index.html).
+const applications = readApplications(localStorage);
 
 // Position in `applications` of the one being edited, or null when adding.
 let editingIndex = null;
 
-function loadApplications() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return Array.isArray(saved) ? saved : [];
-  } catch {
-    // Saved data that isn't valid JSON is treated as an empty list.
-    return [];
-  }
-}
-
 function saveApplications() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
-}
-
-// Returns the label of every required field that is blank.
-function findMissingFields(application) {
-  const missing = [];
-  if (application.company === "") missing.push("company name");
-  if (application.position === "") missing.push("position");
-  if (application.dateApplied === "") missing.push("date applied");
-  if (application.status === "") missing.push("status");
-  return missing;
+  writeApplications(localStorage, applications);
 }
 
 function addLine(item, label, value) {
