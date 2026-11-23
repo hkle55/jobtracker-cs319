@@ -41,13 +41,34 @@
 
       <section>
         <h2>Saved applications</h2>
+
+        <div class="filters">
+          <div>
+            <label for="search">Search</label>
+            <input type="search" id="search" placeholder="Company or position">
+          </div>
+          <div>
+            <label for="status-filter">Status</label>
+            <select id="status-filter">
+              <option value="">All statuses</option>
+              <option value="Applied">Applied</option>
+              <option value="Interviewing">Interviewing</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+
+        <p id="result-count" aria-live="polite"></p>
         <p id="empty-message">No applications yet.</p>
+        <p id="no-matches-message" hidden>No applications match your search and filter.</p>
         <ul id="application-list"></ul>
       </section>
     </div>
   </main>
   <script src="applications.js"></script>
   <script src="storage.js"></script>
+  <script src="filters.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -134,3 +134,32 @@ button.danger {
 #empty-message[hidden] {
   display: none;
 }
+
+/* Search box and status filter sit side by side, wrapping on narrow screens. */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+}
+
+.filters > div {
+  flex: 1 1 160px;
+}
+
+#result-count {
+  margin: 0 0 12px;
+  color: #52606d;
+  font-size: 0.9rem;
+}
+
+#result-count:empty {
+  display: none;
+}
+
+#no-matches-message {
+  margin: 0;
+}
+
+#no-matches-message[hidden] {
+  display: none;
+}
