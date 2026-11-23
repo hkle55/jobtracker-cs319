@@ -6,35 +6,23 @@ const formHeading = document.getElementById("form-heading");
 const submitButton = document.getElementById("submit-button");
 const cancelEditButton = document.getElementById("cancel-edit");
 
-const STORAGE_KEY = "jobtracker.applications";
+// Functions such as readApplications (storage.js) and migrateApplications
+// (applications.js) come from the scripts loaded before this one in index.html.
 
-const applications = loadApplications();
-
-// Position in `applications` of the one being edited, or null when adding.
-let editingIndex = null;
-
-function loadApplications() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return Array.isArray(saved) ? saved : [];
-  } catch {
-    // Saved data that isn't valid JSON is treated as an empty list.
-    return [];
-  }
+// Load saved applications and give any without a unique id one.
+// The original data is backed up first so the migration can be undone.
+const migration = migrateApplications(readApplications(localStorage), createId);
+let applications = migration.applications;
+if (migration.changed) {
+  backupOriginalData(localStorage);
+  saveApplications();
 }
+
+// id of the application being edited, or null when adding.
+let editingId = null;
 
 function saveApplications() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
-}
-
-// Returns the label of every required field that is blank.
-function findMissingFields(application) {
-  const missing = [];
-  if (application.company === "") missing.push("company name");
-  if (application.position === "") missing.push("position");
-  if (application.dateApplied === "") missing.push("date applied");
-  if (application.status === "") missing.push("status");
-  return missing;
+  writeApplications(localStorage, applications);
 }
 
 function addLine(item, label, value) {
@@ -46,7 +34,7 @@ function addLine(item, label, value) {
 
 function renderApplications() {
   list.replaceChildren();
-  applications.forEach((application, index) => {
+  for (const application of applications) {
     const item = document.createElement("li");
     addLine(item, "Company", application.company);
     addLine(item, "Position", application.position);
@@ -57,13 +45,13 @@ function renderApplications() {
     editButton.type = "button";
     editButton.className = "secondary";
     editButton.textContent = "Edit";
-    editButton.addEventListener("click", () => startEditing(index));
+    editButton.addEventListener("click", () => startEditing(application.id));
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "danger";
     deleteButton.textContent = "Delete";
-    deleteButton.addEventListener("click", () => deleteApplication(index));
+    deleteButton.addEventListener("click", () => confirmAndDelete(application.id));
 
     const actions = document.createElement("div");
     actions.className = "item-actions";
@@ -71,14 +59,15 @@ function renderApplications() {
     item.appendChild(actions);
 
     list.appendChild(item);
-  });
+  }
   emptyMessage.hidden = applications.length > 0;
 }
 
 // Fill the form with an existing application and switch to edit mode.
-function startEditing(index) {
-  const application = applications[index];
-  editingIndex = index;
+function startEditing(id) {
+  const application = applications.find((a) => a.id === id);
+  if (!application) return;
+  editingId = id;
   form.elements.company.value = application.company;
   form.elements.position.value = application.position;
   form.elements.dateApplied.value = application.dateApplied;
@@ -92,7 +81,7 @@ function startEditing(index) {
 
 // Clear the form and switch back to adding new applications.
 function stopEditing() {
-  editingIndex = null;
+  editingId = null;
   form.reset();
   formError.textContent = "";
   formHeading.textContent = "Add a job application";
@@ -100,21 +89,19 @@ function stopEditing() {
   cancelEditButton.hidden = true;
 }
 
-function deleteApplication(index) {
-  const application = applications[index];
+function confirmAndDelete(id) {
+  const application = applications.find((a) => a.id === id);
+  if (!application) return;
   const confirmed = confirm(
     `Delete the ${application.position} application at ${application.company}?`
   );
   if (!confirmed) return;
 
-  applications.splice(index, 1);
+  applications = deleteApplication(applications, id);
 
-  // Keep edit mode pointing at the right application after the removal.
-  if (editingIndex === index) {
-    stopEditing();
-  } else if (editingIndex !== null && editingIndex > index) {
-    editingIndex -= 1;
-  }
+  // Deleting the application that is open in the form ends edit mode.
+  // Other edits are unaffected because ids don't shift like positions do.
+  if (editingId === id) stopEditing();
 
   saveApplications();
   renderApplications();
@@ -136,11 +123,11 @@ form.addEventListener("submit", (event) => {
     return;
   }
 
-  if (editingIndex === null) {
-    applications.push(application);
+  if (editingId === null) {
+    applications = addApplication(applications, application, createId);
   } else {
     // Replace the existing entry instead of adding a duplicate.
-    applications[editingIndex] = application;
+    applications = updateApplication(applications, editingId, application);
   }
   saveApplications();
   renderApplications();
