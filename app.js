@@ -5,9 +5,14 @@ const emptyMessage = document.getElementById("empty-message");
 const formHeading = document.getElementById("form-heading");
 const submitButton = document.getElementById("submit-button");
 const cancelEditButton = document.getElementById("cancel-edit");
+const searchInput = document.getElementById("search");
+const statusFilter = document.getElementById("status-filter");
+const resultCount = document.getElementById("result-count");
+const noMatchesMessage = document.getElementById("no-matches-message");
 
-// Functions such as readApplications (storage.js) and migrateApplications
-// (applications.js) come from the scripts loaded before this one in index.html.
+// Functions such as readApplications (storage.js), migrateApplications
+// (applications.js), and filterApplications (filters.js) come from the
+// scripts loaded before this one in index.html.
 
 // Load saved applications and give any without a unique id one.
 // The original data is backed up first so the migration can be undone.
@@ -32,9 +37,17 @@ function addLine(item, label, value) {
   item.appendChild(line);
 }
 
+// Shows the applications that match the current search and status filter.
+// `applications` (the saved data) is never changed here: filterApplications
+// returns a separate list that is only used for display.
 function renderApplications() {
+  const visibleApplications = filterApplications(applications, {
+    query: searchInput.value,
+    status: statusFilter.value,
+  });
+
   list.replaceChildren();
-  for (const application of applications) {
+  for (const application of visibleApplications) {
     const item = document.createElement("li");
     addLine(item, "Company", application.company);
     addLine(item, "Position", application.position);
@@ -60,7 +73,13 @@ function renderApplications() {
 
     list.appendChild(item);
   }
-  emptyMessage.hidden = applications.length > 0;
+  const hasApplications = applications.length > 0;
+  emptyMessage.hidden = hasApplications;
+  noMatchesMessage.hidden = !hasApplications || visibleApplications.length > 0;
+  const noun = applications.length === 1 ? "application" : "applications";
+  resultCount.textContent = hasApplications
+    ? `Showing ${visibleApplications.length} of ${applications.length} ${noun}`
+    : "";
 }
 
 // Fill the form with an existing application and switch to edit mode.
@@ -135,5 +154,9 @@ form.addEventListener("submit", (event) => {
 });
 
 cancelEditButton.addEventListener("click", stopEditing);
+
+// Re-filter the list as the user types or picks a status.
+searchInput.addEventListener("input", renderApplications);
+statusFilter.addEventListener("change", renderApplications);
 
 renderApplications();
