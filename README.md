@@ -35,7 +35,7 @@ The tests need [Node.js](https://nodejs.org/) 22.12 or newer (check with `node -
 
    `npm run test:watch` reruns the tests whenever a file changes.
 
-Tests live in `tests/`. They cover validation, ID creation, migration of saved data, adding, editing, and deleting by ID, and reading, writing, and backing up `localStorage` (using a fake storage object, since Node has no `localStorage`).
+Tests live in `tests/`. They cover validation, ID creation, migration of saved data, adding, editing, and deleting by ID, reading, writing, and backing up `localStorage` (using a fake storage object, since Node has no `localStorage`), and search and status filtering, including checks that filtering never modifies the saved list.
 
 ## Using the app
 
@@ -43,6 +43,10 @@ Tests live in `tests/`. They cover validation, ID creation, migration of saved d
 2. Select **Add application**. The application appears under **Saved applications**, to the right of the form on wider screens and below it on small screens.
 3. To change an application, select **Edit** next to it. Its details load into the form. Make your changes and select **Save changes**, or select **Cancel edit** to discard them.
 4. To remove an application, select **Delete** next to it and confirm.
+5. To find applications, type in **Search** above the list. It matches the company name or position, ignores upper and lower case, and matches part of a word (for example, `acme` finds "Acme Labs").
+6. To show only one status, choose it from the **Status** dropdown above the list. Choose **All statuses** to show every status.
+
+Search and status work together: only applications that match both are shown. A "Showing X of Y" line tells you how many match. Searching and filtering only change what is displayed; saved applications are never changed or removed by them, and Edit and Delete work the same on a filtered list.
 
 If a field is blank, the form shows an error naming the missing fields and does not add or save the application.
 
@@ -60,14 +64,15 @@ Applications saved before IDs were added (Sprint 1) are upgraded automatically t
 | `style.css` | Styling and the two-column layout |
 | `applications.js` | Data rules: validation, ID creation, migration, add/update/delete. No DOM or storage code |
 | `storage.js` | Reading, writing, and backing up saved applications |
+| `filters.js` | Search and status filtering: decides which applications are shown, without changing them |
 | `app.js` | DOM and event handling: renders the list and connects the form and buttons to the functions above |
-| `tests/` | Vitest tests for `applications.js` and `storage.js` |
+| `tests/` | Vitest tests for `applications.js`, `storage.js`, and `filters.js` |
 
-`applications.js` and `storage.js` are plain browser scripts rather than ES modules, so the app still opens by double-clicking `index.html` (browsers block ES modules on `file://` pages). When Node loads them for the tests, they export their functions through `module.exports`.
+`applications.js`, `storage.js`, and `filters.js` are plain browser scripts rather than ES modules, so the app still opens by double-clicking `index.html` (browsers block ES modules on `file://` pages). When Node loads them for the tests, they export their functions through `module.exports`.
 
 ## Design principles (SOLID)
 
-- **Single Responsibility Principle.** Each script has one reason to change: `storage.js` only changes if how data is saved changes, `applications.js` only if the rules for applications change, and `app.js` only if the page changes. Before Sprint 2, `app.js` did all three.
+- **Single Responsibility Principle.** Each script has one reason to change: `storage.js` only changes if how data is saved changes, `applications.js` only if the rules for applications change, `filters.js` only if the rules for what is shown change, and `app.js` only if the page changes. Before Sprint 2, `app.js` did all of this.
 - **Dependency Inversion Principle.** The data and storage functions do not reach for browser features directly; they receive them as arguments. `readApplications(storage)` and the other storage functions accept any object with `getItem` and `setItem`, and `migrateApplications(records, generateId)` and `addApplication` accept the function that makes IDs. The page passes in the real `localStorage` and `createId`; the tests pass a fake storage and a predictable ID generator.
 
 ## Known limitations
