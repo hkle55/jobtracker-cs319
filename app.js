@@ -43,7 +43,7 @@ function renderApplications() {
     deleteButton.type = "button";
     deleteButton.className = "danger";
     deleteButton.textContent = "Delete";
-    deleteButton.addEventListener("click", () => deleteApplication(index));
+    deleteButton.addEventListener("click", () => confirmAndDelete(index));
 
     const actions = document.createElement("div");
     actions.className = "item-actions";
@@ -80,7 +80,7 @@ function stopEditing() {
   cancelEditButton.hidden = true;
 }
 
-function deleteApplication(index) {
+function confirmAndDelete(index) {
   const application = applications[index];
   const confirmed = confirm(
     `Delete the ${application.position} application at ${application.company}?`

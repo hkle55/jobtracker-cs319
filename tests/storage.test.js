@@ -2,7 +2,13 @@ import { describe, it, expect } from "vitest";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { STORAGE_KEY, readApplications, writeApplications } = require("../storage.js");
+const {
+  STORAGE_KEY,
+  BACKUP_KEY,
+  readApplications,
+  writeApplications,
+  backupOriginalData,
+} = require("../storage.js");
 
 // Stands in for the browser's localStorage, which Node doesn't have.
 function createFakeStorage(initial = {}) {
@@ -45,5 +51,31 @@ describe("writeApplications", () => {
 
   it("uses the same key as Sprint 1 so existing data still loads", () => {
     expect(STORAGE_KEY).toBe("jobtracker.applications");
+  });
+});
+
+describe("backupOriginalData", () => {
+  it("copies the saved data exactly as stored", () => {
+    const original = JSON.stringify([sample]);
+    const storage = createFakeStorage({ [STORAGE_KEY]: original });
+
+    backupOriginalData(storage);
+
+    expect(storage.getItem(BACKUP_KEY)).toBe(original);
+  });
+
+  it("never replaces an existing backup", () => {
+    const storage = createFakeStorage({ [STORAGE_KEY]: "first" });
+    backupOriginalData(storage);
+    storage.setItem(STORAGE_KEY, "second");
+    backupOriginalData(storage);
+
+    expect(storage.getItem(BACKUP_KEY)).toBe("first");
+  });
+
+  it("does nothing when there is no saved data", () => {
+    const storage = createFakeStorage();
+    backupOriginalData(storage);
+    expect(storage.getItem(BACKUP_KEY)).toBeNull();
   });
 });
